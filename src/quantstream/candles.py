@@ -13,6 +13,8 @@ def bucket_start(ts: datetime, interval_seconds: int) -> datetime:
 
 class CandleBuilder:
     def __init__(self, interval_seconds: int) -> None:
+        if interval_seconds <= 0:
+            raise ValueError("interval_seconds must be positive")
         self.interval_seconds = interval_seconds
         self._open: dict[tuple[str, datetime], Candle] = {}
 
