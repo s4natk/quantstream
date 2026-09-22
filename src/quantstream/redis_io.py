@@ -1,7 +1,7 @@
 from redis.asyncio import Redis
 
 from quantstream.models import Tick
-from quantstream.stream import tick_to_fields
+from quantstream.stream import tick_from_fields, tick_to_fields
 
 
 def make_redis(url: str) -> Redis:
@@ -20,3 +20,7 @@ async def ensure_group(client, stream_key: str, group: str) -> None:
         if "BUSYGROUP" in str(exc):
             return
         raise
+
+
+def parse_entries(messages: list[tuple[str, dict[str, str]]]) -> list[tuple[str, Tick]]:
+    return [(str(message_id), tick_from_fields(fields)) for message_id, fields in messages]
