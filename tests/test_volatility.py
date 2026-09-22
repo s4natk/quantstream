@@ -63,3 +63,13 @@ def test_matching_threshold_still_alerts():
         alert = tracker.observe(_candle(minute, price))
     assert alert is not None
     assert alert.volatility == vol
+
+
+def test_reading_is_empty_until_three_closes():
+    tracker = VolatilityTracker(window=4, threshold=0.02)
+    assert tracker.reading("AAPL") is None
+    tracker.observe(_candle(0, 100.0))
+    tracker.observe(_candle(1, 100.0))
+    assert tracker.reading("AAPL") is None
+    tracker.observe(_candle(2, 100.0))
+    assert tracker.reading("AAPL") == 0.0
