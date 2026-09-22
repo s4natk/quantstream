@@ -27,6 +27,7 @@ class FakeSession:
         self.statements = []
         self.added = []
         self.rows = list(rows or [])
+        self.committed = False
 
     async def execute(self, statement):
         self.statements.append(statement)
@@ -37,6 +38,9 @@ class FakeSession:
     async def flush(self):
         return None
 
+    async def commit(self):
+        self.committed = True
+
     async def scalars(self, statement):
         self.statements.append(statement)
         rows = list(self.rows)
@@ -46,3 +50,17 @@ class FakeSession:
                 return rows
 
         return Result()
+
+
+class SessionBox:
+    def __init__(self, session=None):
+        self.session = session or FakeSession()
+
+    def __call__(self):
+        return self
+
+    async def __aenter__(self):
+        return self.session
+
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
