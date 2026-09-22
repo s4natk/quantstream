@@ -10,3 +10,17 @@ async def handle_message(client, stream_key: str, payload: str, allowed: set[str
     if allowed is not None and tick.symbol not in allowed:
         return None
     return await publish_tick(client, stream_key, tick)
+
+
+async def consume_socket(
+    websocket,
+    client,
+    stream_key: str,
+    allowed: set[str] | None = None,
+) -> int:
+    published = 0
+    async for payload in websocket:
+        message_id = await handle_message(client, stream_key, payload, allowed)
+        if message_id is not None:
+            published += 1
+    return published
