@@ -35,3 +35,9 @@ class VolatilityTracker:
             volatility=vol,
             threshold=self.threshold,
         )
+
+    def closes(self, symbol: str) -> list[float]:
+        series = self._closes.get(symbol)
+        if series is None:
+            return []
+        return list(series)
