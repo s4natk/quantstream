@@ -43,3 +43,13 @@ def test_loud_closes_raise_an_alert():
     assert last.alerts
     assert last.alerts[0].volatility >= 0.02
     assert last.alerts[0].symbol == "AAPL"
+
+
+def test_counters_follow_closed_buckets():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 14, 2, tzinfo=timezone.utc)
+    pipeline.on_tick(make_tick(minute=0), now)
+    pipeline.on_tick(make_tick(minute=1), now)
+    assert pipeline.counters.ticks == 2
+    assert pipeline.counters.candles == 2
+    assert pipeline.counters.alerts == 0
