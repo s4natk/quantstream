@@ -36,3 +36,14 @@ def test_drain_on_an_empty_builder_returns_nothing():
     builder = CandleBuilder(60)
     now = datetime(2026, 9, 21, 14, 0, tzinfo=timezone.utc)
     assert builder.drain(now) == []
+
+
+def test_open_candles_lists_buckets_still_forming():
+    builder = CandleBuilder(60)
+    moment = datetime(2026, 9, 21, 14, 0, 5, tzinfo=timezone.utc)
+    builder.add(Tick("MSFT", 40.0, 1.0, moment))
+    builder.add(Tick("AAPL", 10.0, 1.0, moment))
+    now = datetime(2026, 9, 21, 14, 0, 40, tzinfo=timezone.utc)
+    assert builder.drain(now) == []
+    symbols = [candle.symbol for candle in builder.open_candles()]
+    assert symbols == ["AAPL", "MSFT"]
