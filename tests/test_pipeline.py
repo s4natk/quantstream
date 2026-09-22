@@ -1,9 +1,10 @@
 from datetime import datetime, timezone
 
+from tests.support import make_tick
+
 from quantstream.config import Settings
 from quantstream.pipeline import Pipeline
 from quantstream.stream import tick_to_fields
-from tests.support import make_tick
 
 
 def test_tick_inside_the_current_bucket_stays_open():

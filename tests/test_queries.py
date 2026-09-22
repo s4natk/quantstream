@@ -1,7 +1,7 @@
 from sqlalchemy.dialects import postgresql
+from tests.support import make_candle
 
 from quantstream.queries import recent_alerts_stmt, recent_candles_stmt, upsert_candle_stmt
-from tests.support import make_candle
 
 
 def test_upsert_targets_the_symbol_bucket_constraint():

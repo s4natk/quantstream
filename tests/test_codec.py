@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 import pytest
+from tests.support import make_candle
 
 from quantstream.codec import (
     CandleDecodeError,
@@ -10,7 +11,6 @@ from quantstream.codec import (
     candle_to_fields,
 )
 from quantstream.models import Alert
-from tests.support import make_candle
 
 
 def test_candle_round_trips_through_fields():

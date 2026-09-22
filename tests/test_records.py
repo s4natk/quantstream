@@ -1,9 +1,10 @@
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
+from tests.support import make_candle
+
 from quantstream.models import Alert
 from quantstream.records import alert_from_row, alert_values, candle_from_row, candle_values
-from tests.support import make_candle
 
 
 def test_candle_values_copy_the_bar():

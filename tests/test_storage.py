@@ -1,10 +1,11 @@
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
-from quantstream.models import Alert
-from quantstream.storage import load_recent_alerts, load_recent_candles, write_alert, write_candle
 from tests.fakes import FakeSession
 from tests.support import make_candle
+
+from quantstream.models import Alert
+from quantstream.storage import load_recent_alerts, load_recent_candles, write_alert, write_candle
 
 
 async def test_writes_execute_upsert_and_stage_alert():

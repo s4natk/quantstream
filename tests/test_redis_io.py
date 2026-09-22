@@ -1,4 +1,6 @@
 import pytest
+from tests.fakes import FakeRedis
+from tests.support import make_tick
 
 from quantstream.redis_io import (
     acknowledge,
@@ -9,8 +11,6 @@ from quantstream.redis_io import (
     read_group,
 )
 from quantstream.stream import tick_from_fields, tick_to_fields
-from tests.fakes import FakeRedis
-from tests.support import make_tick
 
 
 async def test_publish_writes_tick_fields():
