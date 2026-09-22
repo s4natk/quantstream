@@ -1,4 +1,4 @@
-from quantstream.models import Candle
+from quantstream.models import Alert, Candle
 
 
 def candle_values(candle: Candle) -> dict:
@@ -11,4 +11,13 @@ def candle_values(candle: Candle) -> dict:
         "close": candle.close,
         "volume": candle.volume,
         "trade_count": candle.trade_count,
+    }
+
+
+def alert_values(alert: Alert) -> dict:
+    return {
+        "symbol": alert.symbol,
+        "bucket": alert.bucket,
+        "volatility": alert.volatility,
+        "threshold": alert.threshold,
     }
