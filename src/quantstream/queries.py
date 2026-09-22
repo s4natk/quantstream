@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
-from quantstream.db import CandleRow
+from quantstream.db import AlertRow, CandleRow
 from quantstream.models import Candle
 from quantstream.records import candle_values
 
@@ -27,5 +27,14 @@ def recent_candles_stmt(symbol: str, limit: int):
         select(CandleRow)
         .where(CandleRow.symbol == symbol)
         .order_by(CandleRow.bucket.desc())
+        .limit(limit)
+    )
+
+
+def recent_alerts_stmt(symbol: str, limit: int):
+    return (
+        select(AlertRow)
+        .where(AlertRow.symbol == symbol)
+        .order_by(AlertRow.bucket.desc())
         .limit(limit)
     )
