@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from quantstream.config import Settings
 from quantstream.pipeline import Pipeline
 from quantstream.stream import tick_to_fields
 from tests.support import make_tick
@@ -80,3 +81,11 @@ def test_batch_keeps_good_ticks_and_bad_fields():
     assert len(outcome.closed) == 1
     assert outcome.closed[0].close == 50.0
     assert len(outcome.failed) == 1
+
+
+def test_from_settings_uses_the_configured_window():
+    settings = Settings(_env_file=None)
+    pipeline = Pipeline.from_settings(settings)
+    assert pipeline.builder.interval_seconds == settings.candle_interval_seconds
+    assert pipeline.tracker.window == settings.volatility_window
+    assert pipeline.tracker.threshold == settings.volatility_threshold
