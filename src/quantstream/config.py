@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     cache_ttl_seconds: int = 5
     consumer_group: str = "candles"
     consumer_name: str = "worker-1"
+    stream_block_ms: int = 2000
+    stream_read_count: int = 200
 
 
 def get_settings() -> Settings:
