@@ -11,3 +11,13 @@ def test_tick_inside_the_current_bucket_stays_open():
     assert outcome.closed == []
     assert outcome.alerts == []
     assert len(pipeline.builder.open_candles()) == 1
+
+
+def test_tick_in_a_finished_bucket_is_closed():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 14, 1, tzinfo=timezone.utc)
+    outcome = pipeline.on_tick(make_tick(minute=0, price=77.0, size=6), now)
+    assert len(outcome.closed) == 1
+    assert outcome.closed[0].close == 77.0
+    assert outcome.closed[0].volume == 6
+    assert pipeline.builder.open_candles() == []
