@@ -20,3 +20,13 @@ def test_previous_bucket_is_drained_once():
     assert drained[0].close == 101.0
     assert drained[0].volume == 4.0
     assert builder.drain(now) == []
+
+
+def test_drain_returns_each_finished_symbol():
+    builder = CandleBuilder(60)
+    moment = datetime(2026, 9, 21, 14, 0, 5, tzinfo=timezone.utc)
+    builder.add(Tick("MSFT", 40.0, 1.0, moment))
+    builder.add(Tick("AAPL", 10.0, 2.0, moment))
+    now = datetime(2026, 9, 21, 14, 1, tzinfo=timezone.utc)
+    drained = builder.drain(now)
+    assert [candle.symbol for candle in drained] == ["AAPL", "MSFT"]
