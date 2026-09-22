@@ -85,3 +85,8 @@ def test_non_positive_prices_have_no_volatility():
 def test_window_must_cover_three_closes():
     with pytest.raises(ValueError):
         VolatilityTracker(window=2, threshold=0.02)
+
+
+def test_threshold_must_be_positive():
+    with pytest.raises(ValueError):
+        VolatilityTracker(window=3, threshold=0)
