@@ -38,6 +38,9 @@ class Pipeline:
         )
 
     def on_tick(self, tick: Tick, now: datetime) -> Outcome:
+        symbol = tick.symbol.strip().upper()
+        if symbol != tick.symbol:
+            tick = Tick(symbol, tick.price, tick.size, tick.ts)
         self.builder.add(tick)
         self.counters.ticks += 1
         return self._close(now)
