@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 from quantstream.db import CandleRow
@@ -18,4 +19,13 @@ def upsert_candle_stmt(candle: Candle):
             "volume": statement.excluded.volume,
             "trade_count": statement.excluded.trade_count,
         },
+    )
+
+
+def recent_candles_stmt(symbol: str, limit: int):
+    return (
+        select(CandleRow)
+        .where(CandleRow.symbol == symbol)
+        .order_by(CandleRow.bucket.desc())
+        .limit(limit)
     )
