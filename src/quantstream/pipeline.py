@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 from quantstream.candles import CandleBuilder
 from quantstream.models import Alert, Candle, Tick
+from quantstream.stream import TickDecodeError, tick_from_fields
 from quantstream.volatility import VolatilityTracker
 
 
@@ -10,6 +11,7 @@ from quantstream.volatility import VolatilityTracker
 class Outcome:
     closed: list[Candle]
     alerts: list[Alert]
+    failed: list[tuple[str, str]] = field(default_factory=list)
 
 
 @dataclass
@@ -17,6 +19,7 @@ class Counters:
     ticks: int = 0
     candles: int = 0
     alerts: int = 0
+    failed: int = 0
 
 
 class Pipeline:
@@ -40,3 +43,11 @@ class Pipeline:
         self.counters.candles += len(closed)
         self.counters.alerts += len(alerts)
         return Outcome(closed, alerts)
+
+    def on_fields(self, message_id: str, fields: dict[str, str], now: datetime) -> Outcome:
+        try:
+            tick = tick_from_fields(fields)
+        except TickDecodeError as exc:
+            self.counters.failed += 1
+            return Outcome(closed=[], alerts=[], failed=[(message_id, str(exc))])
+        return self.on_tick(tick, now)
