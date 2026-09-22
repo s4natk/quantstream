@@ -21,6 +21,8 @@ class VolatilityTracker:
     def __init__(self, window: int, threshold: float) -> None:
         if window < 3:
             raise ValueError("window must cover at least three closes")
+        if threshold <= 0:
+            raise ValueError("threshold must be positive")
         self.window = window
         self.threshold = threshold
         self._closes: dict[str, deque[float]] = {}
