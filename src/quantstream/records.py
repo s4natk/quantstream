@@ -34,3 +34,12 @@ def candle_from_row(row) -> Candle:
         volume=row.volume,
         trade_count=row.trade_count,
     )
+
+
+def alert_from_row(row) -> Alert:
+    return Alert(
+        symbol=row.symbol,
+        bucket=row.bucket,
+        volatility=row.volatility,
+        threshold=row.threshold,
+    )
