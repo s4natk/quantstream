@@ -21,3 +21,16 @@ def alert_values(alert: Alert) -> dict:
         "volatility": alert.volatility,
         "threshold": alert.threshold,
     }
+
+
+def candle_from_row(row) -> Candle:
+    return Candle(
+        symbol=row.symbol,
+        bucket=row.bucket,
+        open=row.open,
+        high=row.high,
+        low=row.low,
+        close=row.close,
+        volume=row.volume,
+        trade_count=row.trade_count,
+    )
