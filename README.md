@@ -11,6 +11,8 @@ Four processes:
 
 Postgres and Redis run locally from Compose. Container images, ECS, RDS, S3, and the GitHub Actions deploy come after the services actually run.
 
+The library underneath that is in place. A tick is stored as Redis stream fields. `Pipeline` folds ticks into an open candle and drains the bucket once its minute has ended. Closed candles go through a rolling volatility check. Candles and alerts then map onto the tables in `sql/schema.sql`.
+
 ## Run the dependencies
 
 ```bash
