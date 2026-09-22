@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from quantstream.candles import CandleBuilder
+from quantstream.config import Settings
 from quantstream.models import Alert, Candle, Tick
 from quantstream.stream import TickDecodeError, tick_from_fields
 from quantstream.volatility import VolatilityTracker
@@ -27,6 +28,14 @@ class Pipeline:
         self.builder = CandleBuilder(interval_seconds)
         self.tracker = VolatilityTracker(window, threshold)
         self.counters = Counters()
+
+    @classmethod
+    def from_settings(cls, settings: Settings) -> "Pipeline":
+        return cls(
+            settings.candle_interval_seconds,
+            settings.volatility_window,
+            settings.volatility_threshold,
+        )
 
     def on_tick(self, tick: Tick, now: datetime) -> Outcome:
         self.builder.add(tick)
