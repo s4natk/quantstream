@@ -17,6 +17,19 @@ class Settings(BaseSettings):
     consumer_name: str = "worker-1"
     stream_block_ms: int = 2000
     stream_read_count: int = 200
+    feed_url: str = "ws://localhost:8765/trades"
+    feed_symbols: str = "AAPL,MSFT"
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+    query_limit: int = 200
+
+    def symbol_list(self) -> list[str]:
+        names = []
+        for part in self.feed_symbols.split(","):
+            name = part.strip().upper()
+            if name:
+                names.append(name)
+        return names
 
 
 def get_settings() -> Settings:
