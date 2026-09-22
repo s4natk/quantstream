@@ -41,3 +41,9 @@ class VolatilityTracker:
         if series is None:
             return []
         return list(series)
+
+    def reading(self, symbol: str) -> float | None:
+        series = self._closes.get(symbol)
+        if series is None:
+            return None
+        return realized_vol(list(series))
