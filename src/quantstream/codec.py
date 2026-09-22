@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from quantstream.models import Candle
+from quantstream.models import Alert, Candle
 
 
 class CandleDecodeError(ValueError):
@@ -46,3 +46,35 @@ def candle_from_fields(fields: dict[str, str]) -> Candle:
         volume=numbers["volume"],
         trade_count=trade_count,
     )
+
+
+class AlertDecodeError(ValueError):
+    pass
+
+
+def alert_to_fields(alert: Alert) -> dict[str, str]:
+    bucket = alert.bucket
+    if bucket.tzinfo is None:
+        bucket = bucket.replace(tzinfo=timezone.utc)
+    return {
+        "symbol": alert.symbol,
+        "bucket": bucket.isoformat(),
+        "volatility": f"{alert.volatility:.8f}",
+        "threshold": f"{alert.threshold:.8f}",
+    }
+
+
+def alert_from_fields(fields: dict[str, str]) -> Alert:
+    required = ("symbol", "bucket", "volatility", "threshold")
+    missing = [key for key in required if fields.get(key) in (None, "")]
+    if missing:
+        raise AlertDecodeError("missing " + ", ".join(missing))
+    try:
+        bucket = datetime.fromisoformat(fields["bucket"])
+        volatility = float(fields["volatility"])
+        threshold = float(fields["threshold"])
+    except ValueError as exc:
+        raise AlertDecodeError("alert fields are not valid") from exc
+    if bucket.tzinfo is None:
+        bucket = bucket.replace(tzinfo=timezone.utc)
+    return Alert(symbol=fields["symbol"], bucket=bucket, volatility=volatility, threshold=threshold)
