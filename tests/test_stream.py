@@ -43,3 +43,8 @@ def test_missing_field_is_rejected():
 def test_non_numeric_price_is_rejected():
     with pytest.raises(TickDecodeError):
         tick_from_fields(_fields(price="abc"))
+
+
+def test_negative_size_is_rejected():
+    with pytest.raises(TickDecodeError):
+        tick_from_fields(_fields(size="-1"))
