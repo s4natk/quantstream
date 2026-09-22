@@ -73,3 +73,8 @@ def test_reading_is_empty_until_three_closes():
     assert tracker.reading("AAPL") is None
     tracker.observe(_candle(2, 100.0))
     assert tracker.reading("AAPL") == 0.0
+
+
+def test_non_positive_prices_have_no_volatility():
+    assert realized_vol([100.0, 0.0, 101.0, 102.0]) is None
+    assert realized_vol([100.0, -2.0, 101.0, 99.0]) is None
