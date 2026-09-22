@@ -4,7 +4,7 @@ from quantstream.config import Settings
 from quantstream.models import Alert
 from quantstream.pipeline import Outcome, Pipeline
 from quantstream.stream import tick_to_fields
-from quantstream.worker import persist_outcome, process_once
+from quantstream.worker import persist_outcome, process_once, run_batches
 from tests.fakes import FakeRedis, FakeSession, SessionBox
 from tests.support import make_candle, make_tick
 
@@ -57,3 +57,18 @@ async def test_bad_entries_are_acked_without_a_write():
     assert outcome.failed
     assert session.committed is False
     assert client.calls[-1][0] == "xack"
+
+
+async def test_run_batches_creates_the_group_and_repeats():
+    client = FakeRedis()
+    client.reply = []
+    results = await run_batches(
+        client,
+        SessionBox(),
+        Pipeline(60, 3, 0.02),
+        Settings(_env_file=None),
+        _now(),
+        2,
+    )
+    assert len(results) == 2
+    assert client.calls[0][0] == "xgroup"
