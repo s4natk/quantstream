@@ -36,3 +36,8 @@ def test_builder_keeps_separate_buckets():
     assert candle.open == 110.0
     assert candle.trade_count == 1
     assert candle.bucket == datetime(2026, 9, 21, 14, 1, tzinfo=timezone.utc)
+
+
+def test_five_second_bucket_aligns_down():
+    ts = datetime(2026, 9, 21, 14, 0, 47, tzinfo=timezone.utc)
+    assert bucket_start(ts, 5) == datetime(2026, 9, 21, 14, 0, 45, tzinfo=timezone.utc)
