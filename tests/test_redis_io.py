@@ -1,6 +1,12 @@
 import pytest
 
-from quantstream.redis_io import ensure_group, parse_entries, parse_group_reply, publish_tick
+from quantstream.redis_io import (
+    ensure_group,
+    parse_entries,
+    parse_group_reply,
+    publish_tick,
+    read_group,
+)
 from quantstream.stream import tick_from_fields, tick_to_fields
 from tests.fakes import FakeRedis
 from tests.support import make_tick
@@ -40,3 +46,18 @@ def test_parse_entries_keeps_ids():
 def test_empty_reply_has_no_ticks():
     assert parse_group_reply(None) == []
     assert parse_group_reply([]) == []
+
+
+async def test_read_group_requests_new_messages():
+    client = FakeRedis()
+    tick = make_tick()
+    client.reply = [("ticks", [("9-0", tick_to_fields(tick))])]
+    found = await read_group(client, "ticks", "candles", "worker-1", 200, 2000)
+    assert found == [("9-0", tick)]
+    kind, group, consumer, streams, count, block = client.calls[0]
+    assert kind == "xreadgroup"
+    assert group == "candles"
+    assert consumer == "worker-1"
+    assert streams == {"ticks": ">"}
+    assert count == 200
+    assert block == 2000
