@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 
 from quantstream.models import Alert
-from quantstream.records import alert_values, candle_from_row, candle_values
+from quantstream.records import alert_from_row, alert_values, candle_from_row, candle_values
 from tests.support import make_candle
 
 
@@ -30,3 +30,10 @@ def test_candle_from_row_rebuilds_the_bar():
     candle = make_candle(close=88.0, minute=1)
     row = SimpleNamespace(**candle_values(candle))
     assert candle_from_row(row) == candle
+
+
+def test_alert_from_row_rebuilds_the_reading():
+    bucket = datetime(2026, 9, 21, 14, 4, tzinfo=timezone.utc)
+    alert = Alert("IBM", bucket, 0.05, 0.02)
+    row = SimpleNamespace(**alert_values(alert))
+    assert alert_from_row(row) == alert
