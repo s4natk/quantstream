@@ -53,3 +53,13 @@ def test_counters_follow_closed_buckets():
     assert pipeline.counters.ticks == 2
     assert pipeline.counters.candles == 2
     assert pipeline.counters.alerts == 0
+
+
+def test_bad_fields_do_not_become_ticks():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 14, 5, tzinfo=timezone.utc)
+    outcome = pipeline.on_fields("8-0", {"symbol": "AAPL"}, now)
+    assert outcome.closed == []
+    assert outcome.failed[0][0] == "8-0"
+    assert pipeline.counters.failed == 1
+    assert pipeline.counters.ticks == 0
