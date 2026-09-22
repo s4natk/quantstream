@@ -30,3 +30,9 @@ def test_drain_returns_each_finished_symbol():
     now = datetime(2026, 9, 21, 14, 1, tzinfo=timezone.utc)
     drained = builder.drain(now)
     assert [candle.symbol for candle in drained] == ["AAPL", "MSFT"]
+
+
+def test_drain_on_an_empty_builder_returns_nothing():
+    builder = CandleBuilder(60)
+    now = datetime(2026, 9, 21, 14, 0, tzinfo=timezone.utc)
+    assert builder.drain(now) == []
