@@ -31,3 +31,15 @@ def test_flat_closes_do_not_alert():
         outcome = pipeline.on_tick(make_tick(minute=minute, price=100.0), now)
         alerts.extend(outcome.alerts)
     assert alerts == []
+
+
+def test_loud_closes_raise_an_alert():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 15, 0, tzinfo=timezone.utc)
+    last = None
+    for minute, price in enumerate([100.0, 140.0, 70.0]):
+        last = pipeline.on_tick(make_tick(minute=minute, price=price), now)
+    assert last is not None
+    assert last.alerts
+    assert last.alerts[0].volatility >= 0.02
+    assert last.alerts[0].symbol == "AAPL"
