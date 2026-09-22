@@ -51,3 +51,15 @@ def test_symbols_do_not_share_a_window():
         alert = tracker.observe(Candle("MSFT", bucket, price, price, price, price, 1.0, 1))
     assert alert is not None
     assert alert.symbol == "MSFT"
+
+
+def test_matching_threshold_still_alerts():
+    prices = [100.0, 110.0, 90.0, 120.0]
+    vol = realized_vol(prices)
+    assert vol is not None and vol > 0
+    tracker = VolatilityTracker(window=4, threshold=vol)
+    alert = None
+    for minute, price in enumerate(prices):
+        alert = tracker.observe(_candle(minute, price))
+    assert alert is not None
+    assert alert.volatility == vol
