@@ -7,3 +7,9 @@ def test_defaults_point_at_local_services():
     assert settings.candle_interval_seconds == 60
     assert "localhost:5432" in settings.database_url
     assert settings.redis_url.startswith("redis://")
+
+
+def test_consumer_defaults():
+    settings = Settings(_env_file=None)
+    assert settings.consumer_group == "candles"
+    assert settings.consumer_name == "worker-1"
