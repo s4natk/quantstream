@@ -13,3 +13,9 @@ def test_consumer_defaults():
     settings = Settings(_env_file=None)
     assert settings.consumer_group == "candles"
     assert settings.consumer_name == "worker-1"
+
+
+def test_stream_read_defaults():
+    settings = Settings(_env_file=None)
+    assert settings.stream_block_ms == 2000
+    assert settings.stream_read_count == 200
