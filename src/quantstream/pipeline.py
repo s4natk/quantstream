@@ -51,3 +51,14 @@ class Pipeline:
             self.counters.failed += 1
             return Outcome(closed=[], alerts=[], failed=[(message_id, str(exc))])
         return self.on_tick(tick, now)
+
+    def on_batch(self, messages: list[tuple[str, dict[str, str]]], now: datetime) -> Outcome:
+        closed: list[Candle] = []
+        alerts: list[Alert] = []
+        failed: list[tuple[str, str]] = []
+        for message_id, fields in messages:
+            outcome = self.on_fields(message_id, fields, now)
+            closed.extend(outcome.closed)
+            alerts.extend(outcome.alerts)
+            failed.extend(outcome.failed)
+        return Outcome(closed, alerts, failed)
