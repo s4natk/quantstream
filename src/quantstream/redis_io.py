@@ -44,3 +44,10 @@ async def read_group(client, stream_key: str, group: str, consumer: str, count: 
         block=block_ms,
     )
     return parse_group_reply(reply)
+
+
+async def acknowledge(client, stream_key: str, group: str, message_ids: list[str]) -> int:
+    if not message_ids:
+        return 0
+    acked = await client.xack(stream_key, group, *message_ids)
+    return int(acked)
