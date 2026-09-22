@@ -33,3 +33,14 @@ def parse_group_reply(reply) -> list[tuple[str, Tick]]:
     for _stream, messages in reply:
         parsed.extend(parse_entries(messages))
     return parsed
+
+
+async def read_group(client, stream_key: str, group: str, consumer: str, count: int, block_ms: int):
+    reply = await client.xreadgroup(
+        groupname=group,
+        consumername=consumer,
+        streams={stream_key: ">"},
+        count=count,
+        block=block_ms,
+    )
+    return parse_group_reply(reply)
