@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from quantstream.models import Candle
 from quantstream.volatility import VolatilityTracker, realized_vol
 
@@ -78,3 +80,8 @@ def test_reading_is_empty_until_three_closes():
 def test_non_positive_prices_have_no_volatility():
     assert realized_vol([100.0, 0.0, 101.0, 102.0]) is None
     assert realized_vol([100.0, -2.0, 101.0, 99.0]) is None
+
+
+def test_window_must_cover_three_closes():
+    with pytest.raises(ValueError):
+        VolatilityTracker(window=2, threshold=0.02)
