@@ -46,6 +46,27 @@ async def read_group(client, stream_key: str, group: str, consumer: str, count: 
     return parse_group_reply(reply)
 
 
+def flatten_reply(reply) -> list[tuple[str, dict[str, str]]]:
+    if not reply:
+        return []
+    flat: list[tuple[str, dict[str, str]]] = []
+    for _stream, messages in reply:
+        for message_id, fields in messages:
+            flat.append((str(message_id), dict(fields)))
+    return flat
+
+
+async def read_raw(client, stream_key: str, group: str, consumer: str, count: int, block_ms: int):
+    reply = await client.xreadgroup(
+        groupname=group,
+        consumername=consumer,
+        streams={stream_key: ">"},
+        count=count,
+        block=block_ms,
+    )
+    return flatten_reply(reply)
+
+
 async def acknowledge(client, stream_key: str, group: str, message_ids: list[str]) -> int:
     if not message_ids:
         return 0
