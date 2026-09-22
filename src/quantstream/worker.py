@@ -2,7 +2,7 @@ from datetime import datetime
 
 from quantstream.config import Settings
 from quantstream.pipeline import Outcome, Pipeline
-from quantstream.redis_io import acknowledge, read_raw
+from quantstream.redis_io import acknowledge, ensure_group, read_raw
 from quantstream.storage import write_alert, write_candle
 
 
@@ -36,3 +36,11 @@ async def process_once(
     message_ids = [message_id for message_id, _fields in messages]
     await acknowledge(client, settings.stream_key, settings.consumer_group, message_ids)
     return outcome
+
+
+async def run_batches(client, sessions, pipeline, settings: Settings, now: datetime, batches: int):
+    await ensure_group(client, settings.stream_key, settings.consumer_group)
+    results = []
+    for _ in range(batches):
+        results.append(await process_once(client, sessions, pipeline, settings, now))
+    return results
