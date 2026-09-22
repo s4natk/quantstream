@@ -24,3 +24,12 @@ async def ensure_group(client, stream_key: str, group: str) -> None:
 
 def parse_entries(messages: list[tuple[str, dict[str, str]]]) -> list[tuple[str, Tick]]:
     return [(str(message_id), tick_from_fields(fields)) for message_id, fields in messages]
+
+
+def parse_group_reply(reply) -> list[tuple[str, Tick]]:
+    if not reply:
+        return []
+    parsed: list[tuple[str, Tick]] = []
+    for _stream, messages in reply:
+        parsed.extend(parse_entries(messages))
+    return parsed
