@@ -1,4 +1,4 @@
-from quantstream.redis_io import publish_tick
+from quantstream.redis_io import ensure_group, publish_tick
 from quantstream.stream import tick_from_fields
 from tests.fakes import FakeRedis
 from tests.support import make_tick
@@ -13,3 +13,10 @@ async def test_publish_writes_tick_fields():
     assert kind == "xadd"
     assert key == "ticks"
     assert tick_from_fields(fields) == tick
+
+
+async def test_existing_group_is_left_alone():
+    client = FakeRedis()
+    client.error = RuntimeError("BUSYGROUP Consumer Group name already exists")
+    await ensure_group(client, "ticks", "candles")
+    assert client.calls[0][0] == "xgroup"
