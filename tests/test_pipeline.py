@@ -89,3 +89,10 @@ def test_from_settings_uses_the_configured_window():
     assert pipeline.builder.interval_seconds == settings.candle_interval_seconds
     assert pipeline.tracker.window == settings.volatility_window
     assert pipeline.tracker.threshold == settings.volatility_threshold
+
+
+def test_symbols_are_stripped_and_uppercased():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 14, 1, tzinfo=timezone.utc)
+    outcome = pipeline.on_tick(make_tick(symbol=" msft ", minute=0), now)
+    assert outcome.closed[0].symbol == "MSFT"
