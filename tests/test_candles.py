@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from quantstream.candles import CandleBuilder, bucket_start
 from quantstream.models import Tick
 
@@ -41,3 +43,8 @@ def test_builder_keeps_separate_buckets():
 def test_five_second_bucket_aligns_down():
     ts = datetime(2026, 9, 21, 14, 0, 47, tzinfo=timezone.utc)
     assert bucket_start(ts, 5) == datetime(2026, 9, 21, 14, 0, 45, tzinfo=timezone.utc)
+
+
+def test_interval_must_be_positive():
+    with pytest.raises(ValueError):
+        CandleBuilder(0)
