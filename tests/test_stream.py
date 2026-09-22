@@ -53,3 +53,8 @@ def test_negative_size_is_rejected():
 def test_zero_price_is_rejected():
     with pytest.raises(TickDecodeError):
         tick_from_fields(_fields(price="0"))
+
+
+def test_bad_timestamp_is_rejected():
+    with pytest.raises(TickDecodeError):
+        tick_from_fields(_fields(ts="not-a-time"))
