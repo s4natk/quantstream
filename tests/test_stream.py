@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from quantstream.models import Tick
-from quantstream.stream import tick_from_fields, tick_to_fields
+from quantstream.stream import TickDecodeError, tick_from_fields, tick_to_fields
 
 
 def test_tick_round_trips_through_stream_fields():
@@ -18,3 +20,21 @@ def test_naive_timestamp_is_treated_as_utc():
     restored = tick_from_fields(tick_to_fields(tick))
     assert restored.ts.tzinfo == timezone.utc
     assert restored.ts.hour == 15
+
+
+def _fields(**overrides):
+    base = {
+        "symbol": "MSFT",
+        "price": "10.00000000",
+        "size": "1.00000000",
+        "ts": "2026-09-21T15:04:12+00:00",
+    }
+    base.update(overrides)
+    return base
+
+
+def test_missing_field_is_rejected():
+    fields = _fields()
+    fields["symbol"] = ""
+    with pytest.raises(TickDecodeError):
+        tick_from_fields(fields)
