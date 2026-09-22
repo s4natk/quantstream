@@ -1,6 +1,7 @@
 import pytest
 
 from quantstream.redis_io import (
+    acknowledge,
     ensure_group,
     parse_entries,
     parse_group_reply,
@@ -61,3 +62,11 @@ async def test_read_group_requests_new_messages():
     assert streams == {"ticks": ">"}
     assert count == 200
     assert block == 2000
+
+
+async def test_acknowledge_forwards_ids_and_skips_empty():
+    client = FakeRedis()
+    assert await acknowledge(client, "ticks", "candles", []) == 0
+    assert client.calls == []
+    assert await acknowledge(client, "ticks", "candles", ["1-0", "2-0"]) == 2
+    assert client.calls[-1] == ("xack", "ticks", "candles", ("1-0", "2-0"))
