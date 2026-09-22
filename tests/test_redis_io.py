@@ -1,6 +1,6 @@
 import pytest
 
-from quantstream.redis_io import ensure_group, parse_entries, publish_tick
+from quantstream.redis_io import ensure_group, parse_entries, parse_group_reply, publish_tick
 from quantstream.stream import tick_from_fields, tick_to_fields
 from tests.fakes import FakeRedis
 from tests.support import make_tick
@@ -35,3 +35,8 @@ def test_parse_entries_keeps_ids():
     tick = make_tick(symbol="MSFT", price=10.0)
     parsed = parse_entries([("4-1", tick_to_fields(tick))])
     assert parsed == [("4-1", tick)]
+
+
+def test_empty_reply_has_no_ticks():
+    assert parse_group_reply(None) == []
+    assert parse_group_reply([]) == []
