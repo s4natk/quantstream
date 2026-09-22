@@ -1,4 +1,7 @@
-from quantstream.records import candle_values
+from datetime import datetime, timezone
+
+from quantstream.models import Alert
+from quantstream.records import alert_values, candle_values
 from tests.support import make_candle
 
 
@@ -9,3 +12,14 @@ def test_candle_values_copy_the_bar():
     assert values["symbol"] == "AAPL"
     assert values["trade_count"] == 1
     assert values["bucket"] == candle.bucket
+
+
+def test_alert_values_copy_the_reading():
+    bucket = datetime(2026, 9, 21, 14, 0, tzinfo=timezone.utc)
+    alert = Alert("IBM", bucket, 0.04, 0.02)
+    assert alert_values(alert) == {
+        "symbol": "IBM",
+        "bucket": bucket,
+        "volatility": 0.04,
+        "threshold": 0.02,
+    }
