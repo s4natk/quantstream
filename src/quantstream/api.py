@@ -1,10 +1,14 @@
 from datetime import datetime
 
+import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from quantstream.cache import TtlCache
+from quantstream.config import get_settings
 from quantstream.models import Alert, Candle
 from quantstream.reader import CandleReader
+from quantstream.session import make_engine, make_session_factory
 
 
 class CandleOut(BaseModel):
@@ -65,3 +69,16 @@ def create_app(reader: CandleReader) -> FastAPI:
         return [AlertOut.from_alert(row) for row in rows]
 
     return app
+
+
+def main() -> None:
+    settings = get_settings()
+    engine = make_engine(settings.database_url)
+    sessions = make_session_factory(engine)
+    cache = TtlCache(settings.cache_ttl_seconds)
+    reader = CandleReader(sessions, cache, settings.query_limit)
+    uvicorn.run(create_app(reader), host=settings.api_host, port=settings.api_port)
+
+
+if __name__ == "__main__":
+    main()

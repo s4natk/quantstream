@@ -1,9 +1,15 @@
-from datetime import datetime
+import asyncio
+from datetime import datetime, timezone
 
-from quantstream.config import Settings
+from quantstream.config import Settings, get_settings
 from quantstream.pipeline import Outcome, Pipeline
-from quantstream.redis_io import acknowledge, ensure_group, read_raw
+from quantstream.redis_io import acknowledge, ensure_group, make_redis, read_raw
+from quantstream.session import make_engine, make_session_factory
 from quantstream.storage import write_alert, write_candle
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 async def persist_outcome(session, outcome: Outcome) -> None:
@@ -44,3 +50,26 @@ async def run_batches(client, sessions, pipeline, settings: Settings, now: datet
     for _ in range(batches):
         results.append(await process_once(client, sessions, pipeline, settings, now))
     return results
+
+
+async def serve() -> None:
+    settings = get_settings()
+    client = make_redis(settings.redis_url)
+    engine = make_engine(settings.database_url)
+    sessions = make_session_factory(engine)
+    pipeline = Pipeline.from_settings(settings)
+    try:
+        await ensure_group(client, settings.stream_key, settings.consumer_group)
+        while True:
+            await process_once(client, sessions, pipeline, settings, utcnow())
+    finally:
+        await client.aclose()
+        await engine.dispose()
+
+
+def main() -> None:
+    asyncio.run(serve())
+
+
+if __name__ == "__main__":
+    main()

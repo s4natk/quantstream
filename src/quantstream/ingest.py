@@ -1,3 +1,5 @@
+import asyncio
+
 import websockets
 
 from quantstream.config import get_settings
@@ -38,3 +40,11 @@ async def run() -> None:
             await consume_socket(websocket, client, settings.stream_key, allowed)
     finally:
         await client.aclose()
+
+
+def main() -> None:
+    asyncio.run(run())
+
+
+if __name__ == "__main__":
+    main()
