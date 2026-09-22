@@ -1,0 +1,34 @@
+from datetime import datetime, timedelta, timezone
+
+from quantstream.models import Candle
+from quantstream.volatility import VolatilityTracker, realized_vol
+
+
+def _candle(minute: int, close: float) -> Candle:
+    bucket = datetime(2026, 9, 21, 14, 0, tzinfo=timezone.utc) + timedelta(minutes=minute)
+    return Candle("AAPL", bucket, close, close, close, close, 1.0, 1)
+
+
+def test_flat_closes_have_no_volatility():
+    assert realized_vol([100.0, 100.0, 100.0, 100.0]) == 0.0
+
+
+def test_short_window_returns_none():
+    assert realized_vol([100.0, 101.0]) is None
+
+
+def test_tracker_alerts_when_window_is_loud():
+    tracker = VolatilityTracker(window=6, threshold=0.02)
+    quiet = [_candle(i, 100.0) for i in range(3)]
+    loud = [
+        _candle(3, 120.0),
+        _candle(4, 80.0),
+        _candle(5, 130.0),
+    ]
+    assert all(tracker.observe(candle) is None for candle in quiet)
+    for candle in loud[:-1]:
+        tracker.observe(candle)
+    alert = tracker.observe(loud[-1])
+    assert alert is not None
+    assert alert.symbol == "AAPL"
+    assert alert.volatility >= alert.threshold
