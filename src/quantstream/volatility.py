@@ -19,6 +19,8 @@ def realized_vol(closes: list[float]) -> float | None:
 
 class VolatilityTracker:
     def __init__(self, window: int, threshold: float) -> None:
+        if window < 3:
+            raise ValueError("window must cover at least three closes")
         self.window = window
         self.threshold = threshold
         self._closes: dict[str, deque[float]] = {}
