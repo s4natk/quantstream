@@ -32,3 +32,10 @@ def test_tracker_alerts_when_window_is_loud():
     assert alert is not None
     assert alert.symbol == "AAPL"
     assert alert.volatility >= alert.threshold
+
+
+def test_window_keeps_only_the_newest_closes():
+    tracker = VolatilityTracker(window=3, threshold=0.02)
+    for minute, price in enumerate([10.0, 11.0, 12.0, 13.0]):
+        tracker.observe(_candle(minute, price))
+    assert tracker.closes("AAPL") == [11.0, 12.0, 13.0]
