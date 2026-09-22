@@ -39,3 +39,15 @@ def test_window_keeps_only_the_newest_closes():
     for minute, price in enumerate([10.0, 11.0, 12.0, 13.0]):
         tracker.observe(_candle(minute, price))
     assert tracker.closes("AAPL") == [11.0, 12.0, 13.0]
+
+
+def test_symbols_do_not_share_a_window():
+    tracker = VolatilityTracker(window=3, threshold=0.02)
+    loud = [100.0, 150.0, 60.0]
+    alert = None
+    for minute, price in enumerate(loud):
+        bucket = _candle(minute, price).bucket
+        assert tracker.observe(_candle(minute, 100.0)) is None
+        alert = tracker.observe(Candle("MSFT", bucket, price, price, price, price, 1.0, 1))
+    assert alert is not None
+    assert alert.symbol == "MSFT"
