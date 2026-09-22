@@ -19,3 +19,12 @@ def test_stream_read_defaults():
     settings = Settings(_env_file=None)
     assert settings.stream_block_ms == 2000
     assert settings.stream_read_count == 200
+
+
+def test_feed_and_api_defaults():
+    settings = Settings(_env_file=None)
+    assert settings.feed_url.startswith("ws://")
+    assert settings.api_host == "0.0.0.0"
+    assert settings.api_port == 8000
+    assert settings.query_limit == 200
+    assert settings.symbol_list() == ["AAPL", "MSFT"]
