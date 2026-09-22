@@ -44,3 +44,13 @@ class CandleBuilder:
             )
         self._open[key] = candle
         return candle
+
+    def drain(self, now: datetime) -> list[Candle]:
+        current = bucket_start(now, self.interval_seconds)
+        ready: list[Candle] = []
+        for key, candle in list(self._open.items()):
+            if candle.bucket < current:
+                ready.append(candle)
+                del self._open[key]
+        ready.sort(key=lambda item: (item.symbol, item.bucket))
+        return ready
