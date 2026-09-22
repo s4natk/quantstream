@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from quantstream.pipeline import Pipeline
+from quantstream.stream import tick_to_fields
 from tests.support import make_tick
 
 
@@ -63,3 +64,19 @@ def test_bad_fields_do_not_become_ticks():
     assert outcome.failed[0][0] == "8-0"
     assert pipeline.counters.failed == 1
     assert pipeline.counters.ticks == 0
+
+
+def test_batch_keeps_good_ticks_and_bad_fields():
+    pipeline = Pipeline(60, 3, 0.02)
+    now = datetime(2026, 9, 21, 14, 5, tzinfo=timezone.utc)
+    tick = make_tick(minute=0, price=50.0)
+    outcome = pipeline.on_batch(
+        [
+            ("1-0", tick_to_fields(tick)),
+            ("1-1", {"price": "nope"}),
+        ],
+        now,
+    )
+    assert len(outcome.closed) == 1
+    assert outcome.closed[0].close == 50.0
+    assert len(outcome.failed) == 1
