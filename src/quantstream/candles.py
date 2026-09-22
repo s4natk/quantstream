@@ -54,3 +54,8 @@ class CandleBuilder:
                 del self._open[key]
         ready.sort(key=lambda item: (item.symbol, item.bucket))
         return ready
+
+    def open_candles(self) -> list[Candle]:
+        candles = list(self._open.values())
+        candles.sort(key=lambda item: (item.symbol, item.bucket))
+        return candles
