@@ -1,3 +1,5 @@
+import pytest
+
 from quantstream.redis_io import ensure_group, publish_tick
 from quantstream.stream import tick_from_fields
 from tests.fakes import FakeRedis
@@ -20,3 +22,10 @@ async def test_existing_group_is_left_alone():
     client.error = RuntimeError("BUSYGROUP Consumer Group name already exists")
     await ensure_group(client, "ticks", "candles")
     assert client.calls[0][0] == "xgroup"
+
+
+async def test_unexpected_group_error_is_raised():
+    client = FakeRedis()
+    client.error = RuntimeError("NOAUTH")
+    with pytest.raises(RuntimeError):
+        await ensure_group(client, "ticks", "candles")
