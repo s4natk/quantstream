@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     volatility_window: int = 20
     volatility_threshold: float = 0.02
     cache_ttl_seconds: int = 5
+    consumer_group: str = "candles"
+    consumer_name: str = "worker-1"
 
 
 def get_settings() -> Settings:
