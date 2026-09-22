@@ -9,6 +9,7 @@ from quantstream.redis_io import (
     parse_group_reply,
     publish_tick,
     read_group,
+    read_raw,
 )
 from quantstream.stream import tick_from_fields, tick_to_fields
 
@@ -70,3 +71,11 @@ async def test_acknowledge_forwards_ids_and_skips_empty():
     assert client.calls == []
     assert await acknowledge(client, "ticks", "candles", ["1-0", "2-0"]) == 2
     assert client.calls[-1] == ("xack", "ticks", "candles", ("1-0", "2-0"))
+
+
+async def test_read_raw_returns_field_dicts():
+    client = FakeRedis()
+    assert await read_raw(client, "ticks", "candles", "worker-1", 10, 5) == []
+    client.reply = [("ticks", [("3-1", {"symbol": "AAPL", "price": "1"})])]
+    found = await read_raw(client, "ticks", "candles", "worker-1", 10, 5)
+    assert found == [("3-1", {"symbol": "AAPL", "price": "1"})]
