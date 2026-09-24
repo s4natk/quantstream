@@ -1,3 +1,17 @@
+x-app: &app
+  build: .
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  environment:
+    DATABASE_URL: postgresql+asyncpg://quantstream:quantstream@postgres:5432/quantstream
+    REDIS_URL: redis://redis:6379/0
+    STREAM_KEY: ticks
+    FEED_URL: ws://localhost:8765/trades
+    ARCHIVE_DIR: /archives
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -25,5 +39,26 @@ services:
       timeout: 3s
       retries: 10
 
+  ingest:
+    <<: *app
+    command: ["python", "-m", "quantstream.ingest"]
+
+  worker:
+    <<: *app
+    command: ["python", "-m", "quantstream.worker"]
+
+  api:
+    <<: *app
+    command: ["python", "-m", "quantstream.api"]
+    ports:
+      - "8000:8000"
+
+  archiver:
+    <<: *app
+    command: ["python", "-m", "quantstream.archiver"]
+    volumes:
+      - archives:/archives
+
 volumes:
   pgdata:
+  archives:
