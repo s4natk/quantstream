@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     query_limit: int = 200
+    archive_dir: str = "archives"
+    archive_batch: int = 5000
+    archive_interval_seconds: int = 60
 
     def symbol_list(self) -> list[str]:
         names = []

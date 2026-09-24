@@ -27,6 +27,7 @@ dev = [
 quantstream-ingest = "quantstream.ingest:main"
 quantstream-worker = "quantstream.worker:main"
 quantstream-api = "quantstream.api:main"
+quantstream-archiver = "quantstream.archiver:main"
 
 [build-system]
 requires = ["setuptools>=68"]

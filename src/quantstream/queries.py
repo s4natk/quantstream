@@ -22,6 +22,15 @@ def upsert_candle_stmt(candle: Candle):
     )
 
 
+def candles_before_stmt(before, limit: int):
+    return (
+        select(CandleRow)
+        .where(CandleRow.bucket < before)
+        .order_by(CandleRow.bucket.asc())
+        .limit(limit)
+    )
+
+
 def recent_candles_stmt(symbol: str, limit: int):
     return (
         select(CandleRow)

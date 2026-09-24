@@ -1,6 +1,13 @@
+from datetime import datetime
+
 from quantstream.db import AlertRow
 from quantstream.models import Alert, Candle
-from quantstream.queries import recent_alerts_stmt, recent_candles_stmt, upsert_candle_stmt
+from quantstream.queries import (
+    candles_before_stmt,
+    recent_alerts_stmt,
+    recent_candles_stmt,
+    upsert_candle_stmt,
+)
 from quantstream.records import alert_from_row, alert_values, candle_from_row
 
 
@@ -11,6 +18,11 @@ async def write_candle(session, candle: Candle) -> None:
 async def write_alert(session, alert: Alert) -> None:
     session.add(AlertRow(**alert_values(alert)))
     await session.flush()
+
+
+async def load_candles_before(session, before: datetime, limit: int) -> list[Candle]:
+    result = await session.scalars(candles_before_stmt(before, limit))
+    return [candle_from_row(row) for row in result.all()]
 
 
 async def load_recent_candles(session, symbol: str, limit: int) -> list[Candle]:

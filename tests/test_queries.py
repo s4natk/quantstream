@@ -1,7 +1,9 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.dialects import postgresql
 from tests.support import make_candle
 
-from quantstream.queries import recent_alerts_stmt, recent_candles_stmt, upsert_candle_stmt
+from quantstream.queries import candles_before_stmt, recent_alerts_stmt, recent_candles_stmt, upsert_candle_stmt
 
 
 def test_upsert_targets_the_symbol_bucket_constraint():
@@ -9,6 +11,14 @@ def test_upsert_targets_the_symbol_bucket_constraint():
     sql = str(statement.compile(dialect=postgresql.dialect()))
     assert "uq_candles_symbol_bucket" in sql
     assert "ON CONFLICT" in sql
+
+
+def test_candles_before_orders_oldest_first():
+    before = datetime(2026, 9, 21, tzinfo=timezone.utc)
+    lowered = str(candles_before_stmt(before, 50).compile()).lower()
+    assert "candles.bucket <" in lowered
+    assert "asc" in lowered
+    assert "limit" in lowered
 
 
 def test_recent_candles_filter_and_sort():
