@@ -4,6 +4,7 @@ from pathlib import Path
 
 from quantstream.archive import export_candles
 from quantstream.config import get_settings
+from quantstream.object_store import make_s3, store_exports
 from quantstream.session import make_engine, make_session_factory
 from quantstream.storage import load_candles_before
 
@@ -26,12 +27,19 @@ async def serve() -> None:
     sessions = make_session_factory(engine)
     try:
         while True:
-            await export_once(
+            written = await export_once(
                 sessions,
                 Path(settings.archive_dir),
                 utcnow(),
                 settings.archive_batch,
             )
+            if settings.archive_bucket:
+                store_exports(
+                    make_s3(),
+                    settings.archive_bucket,
+                    settings.archive_prefix,
+                    written,
+                )
             await asyncio.sleep(settings.archive_interval_seconds)
     finally:
         await engine.dispose()

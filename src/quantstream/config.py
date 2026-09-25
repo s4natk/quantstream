@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     archive_dir: str = "archives"
     archive_batch: int = 5000
     archive_interval_seconds: int = 60
+    archive_bucket: str = ""
+    archive_prefix: str = "candles"
 
     def symbol_list(self) -> list[str]:
         names = []
