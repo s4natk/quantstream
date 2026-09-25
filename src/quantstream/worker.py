@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from quantstream.config import Settings, get_settings
 from quantstream.pipeline import Outcome, Pipeline
 from quantstream.redis_io import acknowledge, ensure_group, make_redis, read_raw
-from quantstream.session import make_engine, make_session_factory
+from quantstream.session import create_tables, make_engine, make_session_factory
 from quantstream.storage import write_alert, write_candle
 
 
@@ -58,6 +58,7 @@ async def serve() -> None:
     engine = make_engine(settings.database_url)
     sessions = make_session_factory(engine)
     pipeline = Pipeline.from_settings(settings)
+    await create_tables(engine)
     try:
         await ensure_group(client, settings.stream_key, settings.consumer_group)
         while True:
