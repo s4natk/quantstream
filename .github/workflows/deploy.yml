@@ -12,8 +12,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: pytest
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest
 
   deploy:
     needs: test
