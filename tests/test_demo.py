@@ -20,5 +20,8 @@ def test_demo_page_and_state():
         state = client.get("/demo/state")
     assert page.status_code == 200
     assert "QuantStream" in page.text
+    assert "Heikin" in page.text
+    assert "Scroll to zoom" in page.text
     assert state.status_code == 200
     assert "candles" in state.json()
+    assert len(state.json()["series"]["AAPL"]) > 1
