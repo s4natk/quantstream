@@ -12,6 +12,18 @@ The point of the project is the path from a live print to something you can quer
 
 A separate chart page runs that same candle and volatility code on synthetic AAPL and MSFT prices, so the screen can be opened without Postgres, Redis, or AWS.
 
+## Using the chart
+
+AAPL and MSFT on this page are synthetic names. Prices are generated in the process.
+
+- Scroll the wheel over the chart to zoom the time window.
+- Drag the plot to pan.
+- Drag the price scale on the right to stretch prices, and drag the time scale along the bottom to stretch time.
+- Click a bar to pin it. The side panel shows the time, open, high, low, close, and volume, and the axes label that bar.
+- Click the price scale to drop a price mark.
+- Candles, OHLC, line, area, and Heikin are the five ways to plot the same bars.
+- Fit puts the recent window back.
+
 ---
 
 # System Goals
@@ -51,7 +63,7 @@ pip install -e .
 python -m quantstream.demo
 ```
 
-Open http://127.0.0.1:8000. The page polls `/demo/state` once a second and draws 15-second candles for AAPL and MSFT, plus a volume pane and any volatility alerts. Prices are generated in the process. `/health` returns `{"status":"ok"}`.
+Open http://127.0.0.1:8000. The page polls `/demo/state` once a second and draws 15-second candles for AAPL and MSFT, plus a volume pane and any volatility alerts. How to zoom, pan, and switch plot styles is under [Using the chart](#using-the-chart). `/health` returns `{"status":"ok"}`.
 
 ## Full pipeline
 
